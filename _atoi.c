@@ -9,9 +9,8 @@
  */
 int is_interactive(info_t *info)
 {
-    return (isatty(STDIN_FILENO) && info->read_fd <= 2);
+    return (isatty(STDIN_FILENO) && info->readfd <= 2);
 }
-
 /**
  * is_delimiter - checks if a character is a delimiter
  * @c: the character to check
