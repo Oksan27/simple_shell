@@ -2,13 +2,14 @@
 
 /**
  * is_interactive - checks if the shell is in interactive mode
- * @shell_info: pointer to shell information struct
+ * @info: Structure containing potential arguments. Used to maintain
+ * constant function prototype.
  *
  * Return: 1 if in interactive mode, 0 otherwise
  */
-int is_interactive(shell_info_t *shell_info)
+int is_interactive(info_t *info)
 {
-	return (isatty(STDIN_FILENO) && shell_info->read_fd <= 2);
+    return (isatty(STDIN_FILENO) && info->read_fd <= 2);
 }
 
 /**
