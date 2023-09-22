@@ -1,114 +1,66 @@
 #include "shell.h"
 
 /**
- * my_history - displays the history list, one command by line, preceded
- *              with line numbers, starting at 0.
+ * my_env - prints the environment
  * @info: Structure containing potential arguments. Used to maintain
- *        constant function prototype.
+ * constant function prototype.
  * Return: Always 0
  */
-int my_history(info_t *info)
+int my_env(info_t *info)
 {
-	print_list(info->history);
+	char **env = info->env;
+
+	while (*env)
+	{
+		_puts(*env);
+		_putchar('\n');
+		env++;
+	}
+
 	return (0);
 }
 
 /**
- * unset_alias - unsets an alias.
- * @info: parameter struct
- * @alias: the alias to unset
- *
- * Return: Always 0 on success, 1 on error
- */
-int unset_alias(info_t *info, char *alias)
-{
-	char *p, c;
-	int ret;
-
-	p = _strchr(alias, '=');
-	if (!p)
-		return (1);
-	c = *p;
-	*p = 0;
-	ret = delete_node_at_index(&(info->alias),
-		get_node_index(info->alias, node_starts_with(info->alias, alias, -1)));
-	*p = c;
-	return (ret);
-}
-
-/**
- * set_alias - sets an alias to a string.
- * @info: parameter struct
- * @alias: the alias to set
- *
- * Return: Always 0 on success, 1 on error
- */
-int set_alias(info_t *info, char *alias)
-{
-	char *p;
-
-	p = _strchr(alias, '=');
-	if (!p)
-		return (1);
-	if (!*++p)
-		return (unset_alias(info, alias));
-
-	unset_alias(info, alias);
-	return (add_node_end(&(info->alias), alias, 0) == NULL);
-}
-
-/**
- * print_alias - prints an alias string.
- * @node: the alias node
- *
- * Return: Always 0 on success, 1 on error
- */
-int print_alias(list_t *node)
-{
-	char *p = NULL, *a = NULL;
-
-	if (node)
-	{
-		p = _strchr(node->str, '=');
-		for (a = node->str; a <= p; a++)
-			_putchar(*a);
-		_putchar('\'');
-		_puts(p + 1);
-		_puts("'\n");
-		return (0);
-	}
-	return (1);
-}
-
-/**
- * my_alias - mimics the alias builtin (man alias)
+ * my_setenv - sets an environment variable
  * @info: Structure containing potential arguments. Used to maintain
- *          constant function prototype.
+ * constant function prototype.
  * Return: Always 0
  */
-int my_alias(info_t *info)
+int my_setenv(info_t *info)
 {
-	int i = 0;
-	char *p = NULL;
-	list_t *node = NULL;
-
-	if (info->argc == 1)
+	if (info->argc != 3)
 	{
-		node = info->alias;
-		while (node)
-		{
-			print_alias(node);
-			node = node->next;
-		}
-		return (0);
+		print_error(info, "Usage: setenv VARIABLE VALUE");
+		return (1);
 	}
-	for (i = 1; info->argv[i]; i++)
+
+	if (_setenv(info, info->argv[1], info->argv[2]) == -1)
 	{
-		p = _strchr(info->argv[i], '=');
-		if (p)
-			set_alias(info, info->argv[i]);
-		else
-			print_alias(node_starts_with(info->alias, info->argv[i], '='));
+		print_error(info, "setenv: Memory allocation error");
+		return (1);
+	}
+
+	return (0);
+}
+
+/**
+ * my_unsetenv - unsets an environment variable
+ * @info: Structure containing potential arguments. Used to maintain
+ * constant function prototype.
+ * Return: Always 0
+ */
+int my_unsetenv(info_t *info)
+{
+	if (info->argc != 2)
+	{
+		print_error(info, "Usage: unsetenv VARIABLE");
+		return (1);
+	}
+
+	if (_unsetenv(info, info->argv[1]) == -1)
+	{
+		print_error(info, "unsetenv: Variable not found");
+		return (1);
 	}
 
 	return (0);
